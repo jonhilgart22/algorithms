@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # argparse allows the parsing of command line arguments
 import argparse
+from tester import makeinput  # TODO: remove
 
 # utility functions for cs 6515 projects
 import GA_ProjectUtils as util
@@ -14,7 +15,7 @@ NOTE : this table must be 2 dimensional (i.e. T[x][y])
 
 def initTable(numItems, maxWt):
     # Replace the following with your code to initialize the table properly!
-    T = list_of_lists = [[0 for col in range(maxWt)] for row in range(numItems)]
+    T = list_of_lists = [[0 for col in range(maxWt + 1)] for row in range(numItems + 1)]
 
     return T
 
@@ -27,7 +28,7 @@ Build item iterator - iterator through all available items
 
 def buildItemIter(numItems):
     # Replace the following with your code to build the item iterator!
-    return range(numItems)
+    return range(numItems + 1)
 
 
 """
@@ -38,7 +39,7 @@ Build weight iterator - iterator of all possible integer weight values
 
 def buildWeightIter(maxWt):
     # Replace the following with your code to build the weight iterator!
-    return range(maxWt)
+    return range(maxWt + 1)
 
 
 """
@@ -54,9 +55,9 @@ item and weight value
 
 def subProblem(T, iterWt, itemIDX, itemWt, itemVal):
     # Replace the following with your code to solve the subproblem appropriately!
-    # print(itemVal, " itemVal")
-    # print(itemIDX, "itemIDX")
-    # print(iterWt, " iterWt")
+
+    if itemIDX == 0 or itemWt == 0:
+        return 0
     if itemWt <= iterWt:
         return max(itemVal + T[itemIDX - 1][iterWt - itemWt], T[itemIDX - 1][iterWt])
     else:
@@ -73,35 +74,22 @@ Construct list of tuples of items that should be chosen.
 
 
 def buildResultList(T, items, maxWt):
-    print("BUILDING RESULT")
-    # stores the result of Knapsack
-    n_items = len(items)
-    res = T[n_items - 1][maxWt - 1]
-    list_of_items = []
-    print(res)
 
-    w = maxWt - 1
-    for i in range(n_items, 0, -1):
-        print(i, "i")
-        if res <= 0:
+    n_items = len(items)
+    final_value_found = T[n_items][maxWt]  # 0 indexed
+    list_of_items = []
+
+    w = maxWt
+    for i in range(n_items, 0, -1):  # 0 indexed items
+        if final_value_found <= 0:
             break
-        # either the result comes from the
-        # top (K[i-1][w]) or from (val[i-1]
-        # + K[i-1] [w-wt[i-1]]) as in Knapsack
-        # table. If it comes from the latter
-        # one/ it means the item is included.
-        if res == T[i - 1][w]:
+        if final_value_found == T[i - 1][maxWt]:  # previous row has the same  element
             continue
         else:
-            # This item is included.
-            # print(wt[i - 1])
-            print(items[i - 1])
-            list_of_items.append(items[i - 1])
-            # Since this weight is included
-            # its value is deducted
-            res = res - items[i - 1][2]  # val
-            w = w - items[i - 1][1]  # weight
-    print(res, "final res")
+
+            list_of_items.append(items[i])
+            final_value_found = final_value_found - items[i][2]
+            maxWt = maxWt - items[i][1] + 1
     return list_of_items
 
 
@@ -115,13 +103,9 @@ NOTE : There are many ways to solve this problem.  You are to solve it
 
 
 def knapsack(items, maxWt):
-    print(items, "items")
-    print(maxWt, " maxWt")
     numItems = len(items)
-    print(numItems, "numItems")
     # initialize table properly
     table = initTable(numItems, maxWt)
-    print(len(table[0]), "table tshape cols")
     # build iterables
     # item iterator
     itemIter = buildItemIter(numItems)
@@ -130,8 +114,10 @@ def knapsack(items, maxWt):
 
     for itmIdx in itemIter:
         # query item values from list
-        item, itemWt, itemVal = items[itmIdx + 1]
-        print("Item", item)
+        if itmIdx != 0:
+            item, itemWt, itemVal = items[itmIdx]
+        else:
+            item, itemWt, itemVal = [0, 0, 0]
         for w in weightIter:
             # expand table values by solving subproblem
             table[itmIdx][w] = subProblem(table, w, itmIdx, itemWt, itemVal)
@@ -192,5 +178,30 @@ def main():
     util.displayKnapSack(args, itemsChosen)
 
 
+def verifyOutput(res, sol, j=-1):
+    mysol = set([int(k[0]) for k in res])
+    print(res, " res")
+    print(sol, "sol")
+    correct = []
+    for i, s in enumerate(sol):
+        if s > 0:
+            correct.append(i + 1)
+    correct = set(correct)
+    if mysol == correct:
+        print(f"Test case {j} PASSED: {mysol} == {correct}")
+        print(f"mysol = {mysol} correct = {correct}")
+    else:
+        print(f"mysol = {mysol} correct = {correct}")
+        print(f"Test case {j} FAILED: {mysol} != {correct}")
+        return
+
+
 if __name__ == "__main__":
-    main()
+    for i in range(1, 9):
+        items, W, sol = makeinput(i)
+        res = knapsack(items, W)
+        verifyOutput(res, sol, i)
+    exit(0)
+
+# if __name__ == "__main__":
+#     main()

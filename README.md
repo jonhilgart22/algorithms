@@ -1,8 +1,8 @@
 # Algorithms
 
-Various algorithms implemented in C++
+Various algorithms implemented in C++ / Python
 
-## Commands
+## Commands for C++
 1. Compile with CPP > 11
 - `g++ -std=c++11`
 2. Compile with header file
