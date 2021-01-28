@@ -79,17 +79,15 @@ def buildResultList(T, items, maxWt):
     final_value_found = T[n_items][maxWt]  # 0 indexed
     list_of_items = []
 
-    w = maxWt
     for i in range(n_items, 0, -1):  # 0 indexed items
         if final_value_found <= 0:
             break
         if final_value_found == T[i - 1][maxWt]:  # previous row has the same  element
             continue
         else:
-
             list_of_items.append(items[i])
             final_value_found = final_value_found - items[i][2]
-            maxWt = maxWt - items[i][1] + 1
+            maxWt = maxWt - items[i][1]
     return list_of_items
 
 
@@ -121,8 +119,12 @@ def knapsack(items, maxWt):
         for w in weightIter:
             # expand table values by solving subproblem
             table[itmIdx][w] = subProblem(table, w, itmIdx, itemWt, itemVal)
+    print(table[-1][-1], "final value")
+    print(" ")
+    result_list = buildResultList(table, items, maxWt)
+    print(result_list, " result_list")
     # build list of results - chosen items to maximize value for a given weight
-    return buildResultList(table, items, maxWt)
+    return result_list
 
 
 """
@@ -183,25 +185,77 @@ def verifyOutput(res, sol, j=-1):
     print(res, " res")
     print(sol, "sol")
     correct = []
-    for i, s in enumerate(sol):
+    weight_seven = [
+        70,
+        73,
+        77,
+        80,
+        82,
+        87,
+        90,
+        94,
+        98,
+        106,
+        110,
+        113,
+        115,
+        118,
+        120,
+    ]
+    value_seven = [
+        135,
+        139,
+        149,
+        150,
+        156,
+        163,
+        173,
+        184,
+        192,
+        201,
+        210,
+        214,
+        221,
+        229,
+        240,
+    ]
+    cacpacity_seven = 750
+
+    total_weight_seven = 0
+    total_value_seven = 0
+    my_weight_seven = 0
+    my_value_seven = 0
+    for idx, s in enumerate(sol):
         if s > 0:
-            correct.append(i + 1)
+            correct.append(idx + 1)
+        if i == 7 and s > 0:
+            total_weight_seven += weight_seven[idx]
+            total_value_seven += value_seven[idx]
+
+    for idx in range(len(res)):
+        my_weight_seven += list(res[idx])[1]
+        my_value_seven += list(res[idx])[2]
+
     correct = set(correct)
     if mysol == correct:
         print(f"Test case {j} PASSED: {mysol} == {correct}")
         print(f"mysol = {mysol} correct = {correct}")
-    else:
+    else:  # The problem with number seven is the backtracing!
+        print(f" total_weight_seven = {total_weight_seven}")
+        print(f"total_value_seven = {total_value_seven}")
+        print(f" my_weight_seven = {my_weight_seven}")
+        print(f" my_value_seven = { my_value_seven} ")
         print(f"mysol = {mysol} correct = {correct}")
         print(f"Test case {j} FAILED: {mysol} != {correct}")
         return
 
 
-if __name__ == "__main__":
-    for i in range(1, 9):
-        items, W, sol = makeinput(i)
-        res = knapsack(items, W)
-        verifyOutput(res, sol, i)
-    exit(0)
-
 # if __name__ == "__main__":
-#     main()
+#     for i in range(1, 9):
+#         items, W, sol = makeinput(i)
+#         res = knapsack(items, W)
+#         verifyOutput(res, sol, i)
+#     exit(0)
+
+if __name__ == "__main__":
+    main()
