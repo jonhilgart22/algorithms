@@ -3,7 +3,6 @@
 import argparse
 
 # from tester import makeinput
-
 # utility functions for cs 6515 projects
 import GA_ProjectUtils as util
 
@@ -29,7 +28,7 @@ Build item iterator - iterator through all available items
 
 def buildItemIter(numItems):
     # Replace the following with your code to build the item iterator!
-    return range(numItems + 1)
+    return range(1, numItems + 1)
 
 
 """
@@ -40,7 +39,7 @@ Build weight iterator - iterator of all possible integer weight values
 
 def buildWeightIter(maxWt):
     # Replace the following with your code to build the weight iterator!
-    return range(maxWt + 1)
+    return range(1, maxWt + 1)
 
 
 """
@@ -57,8 +56,6 @@ item and weight value
 def subProblem(T, iterWt, itemIDX, itemWt, itemVal):
     # Replace the following with your code to solve the subproblem appropriately!
 
-    if itemIDX == 0 or itemWt == 0:
-        return 0
     if itemWt <= iterWt:
         return max(itemVal + T[itemIDX - 1][iterWt - itemWt], T[itemIDX - 1][iterWt])
     else:
@@ -84,11 +81,19 @@ def buildResultList(T, items, maxWt):
     list_of_items = []
 
     for i in range(n_items, 0, -1):  # 0 indexed items
+        # print(" ")
+        # print(i, "i")
+        # print(final_value_found, " final_value_found")
+        # print(maxWt, "maxWt")
+        # print(T[i - 1][maxWt], "T[i - 1][maxWt]")
+
         if final_value_found <= 0:
             break
         if final_value_found == T[i - 1][maxWt]:  # previous row has the same  element
+            # print("current value = previous val")
             continue
         else:
+            # print("adding item ", items[i])
             list_of_items.append(items[i])
             final_value_found = final_value_found - items[i][2]
             maxWt = maxWt - items[i][1]
@@ -116,17 +121,41 @@ def knapsack(items, maxWt):
 
     for itmIdx in itemIter:
         # query item values from list
-        if itmIdx != 0:
-            item, itemWt, itemVal = items[itmIdx]
-        else:
-            item, itemWt, itemVal = [0, 0, 0]
+        item, itemWt, itemVal = items[itmIdx]
         for w in weightIter:
             # expand table values by solving subproblem
             table[itmIdx][w] = subProblem(table, w, itmIdx, itemWt, itemVal)
 
-    result_list = buildResultList(table, items, maxWt)
     # build list of results - chosen items to maximize value for a given weight
-    return result_list
+    return buildResultList(table, items, maxWt)
+
+
+# """
+# Solve the knapsack problem for the passed list of items and max allowable weight
+# DO NOT MODIFY THE FOLLOWING FUNCTION
+# NOTE : There are many ways to solve this problem.  You are to solve it
+#         using a 2D table, by filling in the function templates above.
+#         If not directed, do not modify the given code template.
+# """
+def knapsack(items, maxWt):
+    numItems = len(items)
+    # initialize table properly
+    table = initTable(numItems, maxWt)
+    # build iterables
+    # item iterator
+    itemIter = buildItemIter(numItems)
+    # weight iterator
+    weightIter = buildWeightIter(maxWt)
+
+    for itmIdx in itemIter:
+        # query item values from list
+        item, itemWt, itemVal = items[itmIdx]
+        for w in weightIter:
+            # expand table values by solving subproblem
+            table[itmIdx][w] = subProblem(table, w, itmIdx, itemWt, itemVal)
+
+    # build list of results - chosen items to maximize value for a given weight
+    return buildResultList(table, items, maxWt)
 
 
 """
@@ -182,24 +211,24 @@ def main():
     util.displayKnapSack(args, itemsChosen)
 
 
-# if __name__ == "__main__":
-#     main()
-def verifyOutput(res, sol, j=-1):
-    mysol = set([int(k[0]) for k in res])
-    correct = []
-    for i, s in enumerate(sol):
-        if s > 0:
-            correct.append(i + 1)
-    correct = set(correct)
-    if mysol == correct:
-        print(f"Test case {j} PASSED: {mysol} == {correct}")
-    else:
-        print(f"Test case {j} FAILED: {mysol} != {correct}")
-
-
 if __name__ == "__main__":
-    for i in range(1, 9):
-        items, W, sol = makeinput(i)
-        res = knapsack(items, W)
-        verifyOutput(res, sol, i)
-    exit(0)
+    main()
+# def verifyOutput(res, sol, j=-1):
+#     mysol = set([int(k[0]) for k in res])
+#     correct = []
+#     for i, s in enumerate(sol):
+#         if s > 0:
+#             correct.append(i + 1)
+#     correct = set(correct)
+#     if mysol == correct:
+#         print(f"Test case {j} PASSED: {mysol} == {correct}")
+#     else:
+#         print(f"Test case {j} FAILED: {mysol} != {correct}")
+
+
+# if __name__ == "__main__":
+#     for i in range(1, 9):
+#         items, W, sol = makeinput(i)
+#         res = knapsack(items, W)
+#         verifyOutput(res, sol, i)
+#     exit(0)
