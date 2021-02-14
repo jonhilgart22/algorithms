@@ -2,7 +2,7 @@ from scipy.fft import fft, ifft
 from numpy import convolve
 from numpy.polynomial import Polynomial as P
 from numpy import polymul, pad
-
+import numpy as np
 from numpy.fft import rfft, irfft
 from numpy import multiply
 
@@ -34,10 +34,14 @@ def fftrealpolymul(arr_a, arr_b):  # fft based real-valued polynomial multiplica
 
 
 if __name__ == "__main__":
-
-    a = [0, 1, 1, 0, 0, 0, 0, 0]
-    b = [0, 1, 1, 0, 0, 0, 0, 0]
+    # max degree is 1, so FFT for one would be omega^2
+    # max degree for three is 3*2
+    a = [1, 1, 0, 0, 0, 0, 0, 0]
+    b = [1, 1, 0, 0, 0, 0, 0, 0]
+    c = [1, 1, 0, 0, 0, 0, 0, 0]
     ffta = fft(a)
     fftb = fft(b)
-    print(ifft(ffta * fftb))
-    print(convolve(a, b),)
+    fftc = fft(c)
+    # these two below should be the same
+    print(np.round(ifft(ffta * fftb * fftc), 1))  # O(nlogn())
+    print(convolve(convolve(a, b), c))  # O(n^2)
