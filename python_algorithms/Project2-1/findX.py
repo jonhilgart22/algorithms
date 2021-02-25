@@ -25,8 +25,16 @@ Your code MUST NOT directly reference any variables in findX.  The following met
 
 def findXinA(x, findX):
     def binary_search(findX, current_index, previous_index):
+        indexes_checked = []
+        c = 1
         while True:
-            mid_point_index = (current_index + previous_index) // 2
+            mid_point_index = int((previous_index + current_index) / 2)
+            while mid_point_index in indexes_checked:
+                mid_point_index = int((previous_index + current_index - c) / 2)
+                c -= 1
+
+            print(indexes_checked, "indexes_checked")
+            indexes_checked.append(mid_point_index)
             print(f"mid_point_index = {mid_point_index}")
             print(f"current_index = {current_index}")
             print(f"previous_index = {previous_index}")
@@ -34,51 +42,51 @@ def findXinA(x, findX):
             mid_point_lookup_num = findX.lookup(mid_point_index)
 
             print(f"mid_point_lookup_num = {mid_point_lookup_num}")
-            print("---------------------")
             if mid_point_lookup_num is None:  # we've gone too far
-                current_index = mid_point_index
+                current_index = mid_point_index - 1
             elif mid_point_lookup_num == number_searching_for:  # did we find it?
                 theIndex = mid_point_index
                 print(f"Found the index at {theIndex}")
                 return theIndex
             elif mid_point_lookup_num > number_searching_for:  # to the right or left?
-                current_index = mid_point_index
+                print("to the left")
+                current_index = mid_point_index - 1
             elif mid_point_lookup_num < number_searching_for:  # to the right or left?
-                print()
-                previous_index = mid_point_index
+                print("to the right")
+                previous_index = max(mid_point_index, previous_index) + 1
+            print("---------------------")
 
     # TODO Your Code Begins Here, DO NOT MODIFY ANY CODE ABOVE THIS LINE
-    seed = 1234
-    print(x, "x")
-    print(findX, "findX")
     # need to do exponential search + binary search
     number_searching_for = findX.x
     print(number_searching_for, "number_searching_for")
-    # print(findX.start(seed), "start")
-    print(findX.lookup(1), "lookup 1")
-    print(findX.lookup(2), "lookup 2")
-    print(findX.lookup(3), "lookup 3")
 
     current_index = 1
     previous_index = 1
     while True:
         print(f"current_index = {current_index}")
+        print(f"previous_index = {previous_index}")
         current_index_num = findX.lookup(current_index)
         print(f"current_index_num = {current_index_num}")
         print("---")
-        if (
+        if current_index_num == number_searching_for:
+            theIndex = current_index
+            break
+        elif (
             current_index_num is None or current_index_num > number_searching_for
         ):  #  return the value ofA[index], orNoneifindex > n
             # conduct binary search
             print("Conducting binary search")
-            theIndex = binary_search(findX, current_index, previous_index)
+            theIndex = binary_search(
+                findX, min(current_index, number_searching_for - 1), previous_index
+            )
             break
 
         else:
             if current_index == 1:
                 current_index += 1
             previous_index = current_index
-            current_index = current_index ** 2
+            current_index = int(current_index * 2)
 
     # theIndex = None  # replace None with the index of x
 
